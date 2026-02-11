@@ -1,5 +1,6 @@
 /* =========================================================
    HP TAKEOUT DETECTOR
+   FINAL VERSION - ALL POINT MODE
    ========================================================= */
 
 const $ = (id) => document.getElementById(id);
@@ -9,6 +10,7 @@ function setStatus(msg) {
   $("status").textContent = msg;
 }
 
+/* ===================== READ KMZ ===================== */
 async function readKmzOrKml(file) {
   const lower = file.name.toLowerCase();
 
@@ -25,23 +27,11 @@ async function readKmzOrKml(file) {
   throw new Error("File harus KMZ / KML");
 }
 
-function getFolderPath(node) {
-  const parts = [];
-  let cur = node.parentElement;
-
-  while (cur) {
-    if (cur.tagName === "Folder") {
-      const nm = cur.querySelector(":scope > name");
-      if (nm && nm.textContent.trim()) parts.unshift(nm.textContent.trim());
-    }
-    cur = cur.parentElement;
-  }
-  return parts.join("/");
-}
-
-function parseHPFromKML(kmlText) {
+/* ===================== PARSE ALL POINT ===================== */
+function parseAllPoints(kmlText) {
   const dom = new DOMParser().parseFromString(kmlText, "text/xml");
   const placemarks = [...dom.getElementsByTagName("Placemark")];
+
   const results = [];
 
   for (const pm of placemarks) {
@@ -54,29 +44,19 @@ function parseHPFromKML(kmlText) {
     const [lon, lat] = coordText.trim().split(",").map(Number);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
 
-    const name = pm.getElementsByTagName("name")[0]?.textContent?.trim() || "";
-    const folderPath = getFolderPath(pm);
-    const upperPath = folderPath.toUpperCase();
-
-    const isHP =
-      upperPath.includes("/HP") ||
-      upperPath.endsWith("HP") ||
-      upperPath.includes("/HOME") ||
-      upperPath.includes("/HOME-BIZ");
-
-    if (!isHP) continue;
+    const name = pm.getElementsByTagName("name")[0]?.textContent?.trim() || "(NO_NAME)";
 
     results.push({
-      hpId: name || "(NO_NAME)",
+      hpId: name,
       lat,
-      lon,
-      path: folderPath
+      lon
     });
   }
 
   return results;
 }
 
+/* ===================== DISTANCE ===================== */
 function distM(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const toRad = x => x * Math.PI / 180;
@@ -89,6 +69,7 @@ function distM(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
+/* ===================== TABLE ===================== */
 function renderTableTakeout(rows) {
   const tbody = $("table").querySelector("tbody");
   tbody.innerHTML = "";
@@ -105,20 +86,20 @@ function renderTableTakeout(rows) {
   }
 }
 
+/* ===================== CSV ===================== */
 function toCsv(rows) {
-  const header = ["HP_ID","Lat","Lon","Folder","Reason"];
+  const header = ["HP_ID","Lat","Lon","Reason"];
   const lines = [header.join(",")];
-  const esc = (v) => `"${String(v ?? "").replaceAll('"','""')}"`;
 
   for (const r of rows) {
     lines.push([
-      esc(r.hpId),
+      `"${r.hpId}"`,
       r.lat,
       r.lon,
-      esc(r.path),
-      esc(r.reason)
+      `"${r.reason}"`
     ].join(","));
   }
+
   return lines.join("\n");
 }
 
@@ -132,6 +113,7 @@ function downloadCsv(filename, text) {
   URL.revokeObjectURL(url);
 }
 
+/* ===================== MAIN ===================== */
 $("run").addEventListener("click", async () => {
   try {
     const survey = $("survey").files[0];
@@ -150,8 +132,8 @@ $("run").addEventListener("click", async () => {
       readKmzOrKml(design)
     ]);
 
-    const sHP = parseHPFromKML(sKml);
-    const dHP = parseHPFromKML(dKml);
+    const sHP = parseAllPoints(sKml);
+    const dHP = parseAllPoints(dKml);
 
     let matched = 0;
     const takeout = [];
@@ -176,7 +158,7 @@ $("run").addEventListener("click", async () => {
     lastTakeoutRows = takeout;
 
     $("summary").textContent =
-      `Survey HP: ${sHP.length} | Design HP: ${dHP.length} | Matched: ${matched} | TAKEOUT: ${takeout.length}`;
+      `Survey: ${sHP.length} | Design: ${dHP.length} | Matched: ${matched} | TAKEOUT: ${takeout.length}`;
 
     $("download").disabled = takeout.length === 0;
     setStatus("Selesai");
