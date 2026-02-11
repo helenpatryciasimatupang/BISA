@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HP TAKEOUT DETECTOR</title>
 
-<!-- JSZIP WAJIB -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
@@ -20,7 +19,7 @@ th { background:#1976d2; color:white; }
 
 <body>
 
-<h2>HP TAKEOUT DETECTOR</h2>
+<h2>HP TAKEOUT DETECTOR (ALL POINT MODE)</h2>
 
 <div class="card">
   KMZ Survey:<br>
@@ -30,10 +29,10 @@ th { background:#1976d2; color:white; }
   <input type="file" id="design" accept=".kmz,.kml"><br><br>
 
   Radius (meter, optional):<br>
-  <input type="number" id="radius"><br><br>
+  <input type="number" id="radius" placeholder="Contoh: 5"><br><br>
 
   <button id="run">PROSES</button>
-  <button id="download" disabled>DOWNLOAD CSV</button>
+  <button id="download" disabled>DOWNLOAD CSV TAKEOUT</button>
 
   <p id="status"></p>
   <p id="summary"></p>
@@ -53,8 +52,6 @@ th { background:#1976d2; color:white; }
   </table>
 </div>
 
-<!-- HUBUNGKAN KE APP.JS -->
 <script src="app.js"></script>
-
 </body>
 </html>
