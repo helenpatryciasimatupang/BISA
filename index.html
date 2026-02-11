@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HP TAKEOUT DETECTOR</title>
+
+<!-- JSZIP WAJIB -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+body { font-family: Arial; margin: 30px; background:#f4f6f8; }
+.card { background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:20px; }
+button { padding:8px 12px; cursor:pointer; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th,td { border:1px solid #ddd; padding:6px; font-size:13px; }
+th { background:#1976d2; color:white; }
+</style>
+</head>
+
+<body>
+
+<h2>HP TAKEOUT DETECTOR</h2>
+
+<div class="card">
+  KMZ Survey:<br>
+  <input type="file" id="survey" accept=".kmz,.kml"><br><br>
+
+  KMZ Design:<br>
+  <input type="file" id="design" accept=".kmz,.kml"><br><br>
+
+  Radius (meter, optional):<br>
+  <input type="number" id="radius"><br><br>
+
+  <button id="run">PROSES</button>
+  <button id="download" disabled>DOWNLOAD CSV</button>
+
+  <p id="status"></p>
+  <p id="summary"></p>
+</div>
+
+<div class="card">
+  <table id="table">
+    <thead>
+      <tr>
+        <th>HP ID</th>
+        <th>Lat</th>
+        <th>Lon</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- HUBUNGKAN KE APP.JS -->
+<script src="app.js"></script>
+
+</body>
+</html>
